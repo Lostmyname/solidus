@@ -9,7 +9,6 @@ describe Spree::Shipment, type: :model do
     order.shipments.create!(
       state: 'pending',
       cost: 1,
-      address: order.ship_address,
       inventory_units: order.inventory_units,
       shipping_rates: [
         Spree::ShippingRate.new(
@@ -456,7 +455,7 @@ describe Spree::Shipment, type: :model do
     context "when the shipment is canceled" do
       let(:address){ create(:address) }
       let(:order){ create(:order_with_line_items, ship_address: address) }
-      let(:shipment_with_inventory_units) { create(:shipment, order: order, address: address, state: 'canceled') }
+      let(:shipment_with_inventory_units) { create(:shipment, order: order, state: 'canceled') }
       let(:subject) { shipment_with_inventory_units.ship! }
       before do
         allow(order).to receive(:update!)
@@ -666,7 +665,6 @@ describe Spree::Shipment, type: :model do
     let(:unshippable_shipment) do
       create(
         :shipment,
-        address: create(:address),
         stock_location: stock_location,
         inventory_units: [build(:inventory_unit)],
       )
