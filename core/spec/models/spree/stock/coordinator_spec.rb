@@ -33,11 +33,6 @@ module Spree
           expect(shipments.count).to eq packages.count
           shipments.each { |shipment| expect(shipment).to be_a Shipment }
         end
-
-        it "puts the order's ship address on the shipments" do
-          shipments = subject.shipments
-          shipments.each { |shipment| expect(shipment.address).to eq order.ship_address }
-        end
       end
 
       context "build packages" do
