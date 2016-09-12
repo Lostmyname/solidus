@@ -103,13 +103,17 @@ module Spree
       # If an action has been taken, report back to whatever activated this promotion.
       action_taken = results.include?(true)
 
-      if action_taken
-        # connect to the order
-        order_promotions.find_or_create_by!(
-          order_id: order.id,
-          promotion_code_id: promotion_code.try!(:id)
-        )
-      end
+      # connect to the order
+      order_promotions.find_or_create_by!(
+        order_id: order.id,
+        promotion_code_id: promotion_code.try!(:id)
+      )
+
+      Spree::Config.promotions_to_remove_from_order_class.new(order).
+        promotions_to_remove.
+        each do |promotion|
+          promotion.remove_from(order)
+        end
 
       action_taken
     end
@@ -208,6 +212,17 @@ module Spree
           id: excluded_orders.map(&:id)
         ).any?
       end
+    end
+
+    # Removes a promotion and any adjustments or other side effects from an
+    # order.
+    # @param order [Spree::Order] the order to remove the promotion from.
+    def remove_from(order)
+      actions.each do |action|
+        action.remove_from(order)
+      end
+      # note: this destroys the join table entry, not the promotion itself
+      order.promotions.destroy(self)
     end
 
     private
