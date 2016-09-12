@@ -118,6 +118,12 @@ module Spree
         promotion_code_id: promotion_code.try!(:id)
       )
 
+      Spree::Config.promotions_to_remove_from_order_class.new(order).
+        promotions_to_remove.
+        each do |promotion|
+          promotion.remove_from(order)
+        end
+
       action_taken
     end
 
@@ -216,6 +222,17 @@ module Spree
           id: excluded_orders.map(&:id)
         ).any?
       end
+    end
+
+    # Removes a promotion and any adjustments or other side effects from an
+    # order.
+    # @param order [Spree::Order] the order to remove the promotion from.
+    def remove_from(order)
+      actions.each do |action|
+        action.remove_from(order)
+      end
+      # note: this destroys the join table entry, not the promotion itself
+      order.promotions.destroy(self)
     end
 
     private
