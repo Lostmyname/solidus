@@ -104,10 +104,11 @@ module Spree
       action_taken = results.include?(true)
 
       # connect to the order
-      order_promotions.find_or_create_by!(
-        order_id: order.id,
-        promotion_code_id: promotion_code.try!(:id)
+      order.order_promotions.find_or_create_by!(
+        promotion: self,
+        promotion_code: promotion_code,
       )
+      order.promotions.reset
 
       Spree::Config.promotions_to_remove_from_order_class.new(order).
         promotions_to_remove.
