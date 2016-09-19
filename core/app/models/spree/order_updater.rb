@@ -183,7 +183,6 @@ module Spree
 
         promotion_adjustments.each(&:update!)
         Spree::Config.promotion_chooser_class.new(promotion_adjustments).update
-
         item.promo_total = promotion_adjustments.select(&:eligible?).sum(&:amount)
       end
     end
@@ -210,21 +209,21 @@ module Spree
         # These ones should not affect the eventual total price.
         #
         # Additional tax adjustments are the opposite, affecting the final total.
+
+        tax_adjustments.each(&:update!)
         item.included_tax_total   = tax_adjustments.select(&:included?).sum(&:amount)
         item.additional_tax_total = tax_adjustments.reject(&:included?).sum(&:amount)
       end
     end
 
     def update_cancellations
-      line_items.each do |line_item|
-        line_item.adjustments.select(&:cancellation?).each(&:update!)
+      [*line_items, *shipments].each do |item|
+        item.adjustments.select(&:cancellation?).each(&:update!)
       end
     end
 
     def update_item_totals
       [*line_items, *shipments].each do |item|
-        # The cancellation_total isn't persisted anywhere but is included in
-        # the adjustment_total
         item_cancellation_total = item.adjustments.select(&:cancellation?).sum(&:amount)
 
         item.adjustment_total = item.promo_total +
