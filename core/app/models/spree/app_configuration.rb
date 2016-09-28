@@ -394,6 +394,16 @@ module Spree
       @automatic_promotion_decision_class ||= Spree::Promotion::AutomaticPromotionDecision
     end
 
+    # Allows providing your own class for calculating taxes on an order.
+    #
+    # @!attribute [rw] tax_adjuster_class
+    # @return [Class] a class with the same public interfaces as
+    #   Spree::Tax::OrderAdjuster
+    attr_writer :tax_adjuster_class
+    def tax_adjuster_class
+      @tax_adjuster_class ||= Spree::Tax::OrderAdjuster
+    end
+
     def static_model_preferences
       @static_model_preferences ||= Spree::Preferences::StaticModelPreferences.new
     end
