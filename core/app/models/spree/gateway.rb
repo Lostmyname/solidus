@@ -7,6 +7,33 @@ module Spree
     preference :server, :string, default: 'test'
     preference :test_mode, :boolean, default: true
 
+
+    def authorize(money, creditcard, gateway_options)
+      money = localize_money
+    end
+
+    def purchase(money, creditcard, gateway_options)
+      # MANIPULATE MONEY
+      provider.purchase(*options_for_purchase_or_auth(money, creditcard, gateway_options))
+    end
+
+
+    def capture(money, response_code, gateway_options)
+      provider.capture(money, response_code, gateway_options)
+    end
+
+    def credit(money, creditcard, response_code, gateway_options)
+      provider.refund(money, response_code, {})
+    end
+
+    def void(response_code, creditcard, gateway_options)
+      provider.void(response_code, {})
+    end
+
+    def cancel(response_code)
+      provider.void(response_code, {})
+    end
+
     def payment_source_class
       CreditCard
     end
