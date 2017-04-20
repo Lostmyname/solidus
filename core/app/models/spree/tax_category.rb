@@ -5,8 +5,8 @@ module Spree
     validates_uniqueness_of :name, unless: :deleted_at
 
 
-    has_many :tax_rate_categories, class_name: Spree::TaxRateCategory, dependent: :delete_all
-    has_many :tax_rates, through: :tax_rate_categories, class_name: Spree::TaxRate
+    has_many :tax_rate_tax_categories, class_name: Spree::TaxRateTaxCategory, dependent: :destroy
+    has_many :tax_rates, through: :tax_rate_tax_categories, class_name: Spree::TaxRate
 
     after_save :ensure_one_default
 
