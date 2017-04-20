@@ -3,7 +3,10 @@ clothing = Spree::TaxCategory.find_by_name!("Default")
 tax_rate = Spree::TaxRate.create(
   name: "North America",
   zone: north_america,
-  amount: 0.05,
-  tax_category: clothing)
+  amount: 0.05)
+Spree::TaxRateCategory.create!(
+  tax_rate: tax_rate,
+  tax_category: clothing
+)
 tax_rate.calculator = Spree::Calculator::DefaultTax.create!
 tax_rate.save!

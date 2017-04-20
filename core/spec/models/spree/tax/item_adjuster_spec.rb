@@ -55,16 +55,21 @@ RSpec.describe Spree::Tax::ItemAdjuster do
       end
 
       context 'when there are matching rates for the zone' do
-        context 'and all rates have the same tax category as the item' do
-          let(:item_tax_category) { build_stubbed(:tax_category) }
-          let(:rate_1) { create :tax_rate, tax_category: item_tax_category }
+        context "and there matching tax rates for the item" do
+          let(:item_tax_category) { build(:tax_category) }
+          let(:rate_1) { create :tax_rate, tax_categories: [item_tax_category] }
           let(:rate_2) { create :tax_rate }
-          let(:rates_for_order_zone) { [rate_1, rate_2] }
+          let(:rate_3) { create :tax_rate, tax_categories: [item_tax_category, build(:tax_category)] }
+          let(:rates_for_order_zone) { [rate_1, rate_2, rate_3] }
 
           before { allow(item).to receive(:tax_category).and_return(item_tax_category) }
 
           it 'creates an adjustment for every matching rate' do
-            expect(adjuster.adjust!.length).to eq(1)
+            expect(adjuster.adjust!.length).to eq(2)
+          end
+
+          it 'creates adjustments only for matching rates' do
+            expect(adjuster.adjust!.map(&:source)).to match_array([rate_1, rate_3])
           end
         end
       end

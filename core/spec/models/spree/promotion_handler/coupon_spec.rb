@@ -260,7 +260,7 @@ module Spree
             @rate1 = Spree::TaxRate.create(
               amount: 0.10,
               calculator: Spree::Calculator::DefaultTax.create,
-              tax_category: @category,
+              tax_categories: [@category],
               zone: @zone
             )
 

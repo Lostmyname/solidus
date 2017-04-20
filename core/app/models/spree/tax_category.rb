@@ -4,7 +4,10 @@ module Spree
     validates :name, presence: true
     validates_uniqueness_of :name, unless: :deleted_at
 
-    has_many :tax_rates, dependent: :destroy, inverse_of: :tax_category
+
+    has_many :tax_rate_categories, class_name: Spree::TaxRateCategory, dependent: :delete_all
+    has_many :tax_rates, through: :tax_rate_categories, class_name: Spree::TaxRate
+
     after_save :ensure_one_default
 
     def self.default

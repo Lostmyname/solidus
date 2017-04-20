@@ -183,7 +183,7 @@ describe Spree::Order, type: :model do
       end
 
       it "recalculates tax and updates totals" do
-        create(:tax_rate, tax_category: line_item.tax_category, amount: 0.05, zone: order.tax_zone)
+        create(:tax_rate, tax_categories: [line_item.tax_category], amount: 0.05, zone: order.tax_zone)
         order.next!
         expect(order).to have_attributes(
           adjustment_total: 0.5,

@@ -48,7 +48,7 @@ describe Spree::UnreturnedItemCharger do
 
     context 'in tax zone' do
       let!(:tax_zone) { create(:zone, countries: [ship_address.country]) }
-      let!(:tax_rate) { create(:tax_rate, zone: tax_zone, tax_category: original_variant.tax_category) }
+      let!(:tax_rate) { create(:tax_rate, zone: tax_zone, tax_categories: [original_variant.tax_category]) }
       before { tax_zone.update_attributes!(default_tax: true) }
 
       it "applies tax" do
