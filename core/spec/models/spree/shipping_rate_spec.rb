@@ -32,7 +32,7 @@ describe Spree::ShippingRate, type: :model do
         included_in_price: true,
         name: "VAT",
         zone: default_zone,
-        tax_category: tax_category
+        tax_categories: [tax_category]
       end
 
       let(:order_address) { address }
@@ -62,7 +62,7 @@ describe Spree::ShippingRate, type: :model do
         included_in_price: true,
         name: "VAT",
         zone: default_zone,
-        tax_category: tax_category
+        tax_categories: [tax_category]
       end
 
       let(:order_address) { foreign_address }
@@ -92,7 +92,7 @@ describe Spree::ShippingRate, type: :model do
         included_in_price: false,
         name: "Sales Tax",
         zone: default_zone,
-        tax_category: tax_category
+        tax_categories: [tax_category]
       end
 
       let(:order_address) { address }
@@ -122,7 +122,7 @@ describe Spree::ShippingRate, type: :model do
         included_in_price: false,
         name: "Sales Tax",
         zone: default_zone,
-        tax_category: tax_category
+        tax_categories: [tax_category]
       end
 
       let!(:other_tax_rate) do
@@ -130,7 +130,7 @@ describe Spree::ShippingRate, type: :model do
         included_in_price: false,
         name: "Other Sales Tax",
         zone: default_zone,
-        tax_category: tax_category,
+        tax_categories: [tax_category],
         amount: 0.05
       end
 
