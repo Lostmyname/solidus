@@ -10,8 +10,8 @@ module Spree
 
     belongs_to :zone, class_name: "Spree::Zone", inverse_of: :tax_rates
 
-    has_many :tax_rate_categories, class_name: Spree::TaxRateCategory
-    has_many :tax_categories, through: :tax_rate_categories, class_name: Spree::TaxCategory
+    has_many :tax_rate_tax_categories, class_name: Spree::TaxRateTaxCategory, dependent: :destroy
+    has_many :tax_categories, through: :tax_rate_tax_categories, class_name: Spree::TaxCategory
 
     has_many :adjustments, as: :source
     has_many :shipping_rate_taxes, class_name: "Spree::ShippingRateTax"
@@ -90,10 +90,12 @@ module Spree
     private
 
     def adjustment_label(amount)
-      Spree.t translation_key(amount),
-              scope: "adjustment_labels.tax_rates",
-            name: name.presence || tax_categories.map(&:name).join(", "),
-              amount: amount_for_adjustment_label
+      Spree.t(
+        translation_key(amount),
+        scope: "adjustment_labels.tax_rates",
+        name: name.presence || tax_categories.map(&:name).join(", "),
+        amount: amount_for_adjustment_label
+      )
     end
 
     def amount_for_adjustment_label
