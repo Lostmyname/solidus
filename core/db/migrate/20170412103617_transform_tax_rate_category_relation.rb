@@ -33,16 +33,12 @@ class TransformTaxRateCategoryRelation < ActiveRecord::Migration[5.0]
     TaxRate.find_each do |tax_rate|
       tax_category_ids = TaxRateTaxCategory.where(tax_rate_id: tax_rate.id).pluck(:tax_category_id)
 
-      if tax_category_ids.count == 1
-        tax_rate.update!(tax_category_id: tax_category_ids.first)
-      else
-        tax_category_ids.each_with_index do |category_id, i|
-          if i.zero?
-            tax_rate.update!(tax_category_id: category_id)
-          else
-            new_tax_rate = tax_rate.dup
-            new_tax_rate.update!(tax_category_id: category_id)
-          end
+      tax_category_ids.each_with_index do |category_id, i|
+        if i.zero?
+          tax_rate.update!(tax_category_id: category_id)
+        else
+          new_tax_rate = tax_rate.dup
+          new_tax_rate.update!(tax_category_id: category_id)
         end
       end
     end
