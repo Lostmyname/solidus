@@ -26,11 +26,11 @@ module Spree
       end
 
       def rates_for_order_zone(order)
-        @rates_for_order_zone ||= Spree::TaxRate.for_zone(order_tax_zone(order))
+        @rates_for_order_zone ||= Spree::TaxRate.includes(:tax_categories).for_zone(order_tax_zone(order))
       end
 
       def rates_for_default_zone
-        @rates_for_default_zone ||= Spree::TaxRate.for_zone(Spree::Zone.default_tax)
+        @rates_for_default_zone ||= Spree::TaxRate.includes(:tax_categories).for_zone(Spree::Zone.default_tax)
       end
 
       def order_tax_zone(order)
