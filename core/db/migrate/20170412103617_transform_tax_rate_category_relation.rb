@@ -1,4 +1,4 @@
-class TransformTaxRateCategoryRelation < ActiveRecord::Migration
+class TransformTaxRateCategoryRelation < ActiveRecord::Migration[5.0]
   class TaxRate < ActiveRecord::Base
     self.table_name = "spree_tax_rates"
   end
