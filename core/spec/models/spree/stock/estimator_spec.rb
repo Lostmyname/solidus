@@ -126,7 +126,7 @@ module Spree
 
         context "involves backend only shipping methods" do
           before{ Spree::ShippingMethod.destroy_all }
-          let!(:backend_method) { create(:shipping_method, display_on: "back_end", cost: 0.00) }
+          let!(:backend_method) { create(:shipping_method, available_to_users: false, cost: 0.00) }
           let!(:generic_method) { create(:shipping_method, cost: 5.00) }
 
           it "does not return backend rates at all" do
@@ -140,7 +140,9 @@ module Spree
         end
 
         context "includes tax adjustments if applicable" do
-          let!(:tax_rate) { create(:tax_rate, zone: order.tax_zone) }
+          let(:zone) { create(:zone, countries: [order.tax_address.country])}
+
+          let!(:tax_rate) { create(:tax_rate, zone: zone) }
 
           before do
             shipping_method.update!(tax_category: tax_rate.tax_category)

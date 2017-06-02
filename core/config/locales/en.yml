@@ -178,8 +178,6 @@ en:
       spree/property:
         name: Name
         presentation: Presentation
-      spree/prototype:
-        name: Name
       spree/refund:
         amount: Amount
         description: Description
@@ -252,6 +250,7 @@ en:
         seo_title: Seo Title
         name: Site Name
         mail_from_address: Mail From Address
+        cart_tax_country_iso: Tax Country for Empty Carts
       spree/store_credit:
         amount: Amount
         amount_authorized: Amount Authorized
@@ -359,8 +358,56 @@ en:
         one: Adjustment Reason
         other: Adjustment Reasons
       spree/calculator:
-        one: Calculator
-        other: Calculators
+        one: Base Calculator
+        other: Base Calculators
+      spree/calculator/default_tax:
+        one: Default Tax
+        other: Default Tax
+      spree/calculator/flat_percent_item_total:
+        one: Flat Percent
+        other: Flat Percent
+      spree/calculator/flat_rate:
+        one: Flat Rate
+        other: Flat Rate
+      spree/calculator/flexi_rate:
+        one: Flexible Rate
+        other: Flexible Rate
+      spree/calculator/free_shipping:
+        one: Free Shipping
+        other: Free Shipping
+      spree/calculator/percent_on_line_item:
+        one: Percent Per Item
+        other: Percent Per Item
+      spree/calculator/percent_per_item:
+        one: Percent Per Item
+        other: Percent Per Item
+      spree/calculator/price_sack:
+        one: Price Sack
+        other: Price Sack
+      spree/calculator/tiered_percent:
+        one: Tiered Percent
+        other: Tiered Percent
+      spree/calculator/tiered_flat_rate:
+        one: Tiered Flat Rate
+        other: Tiered Flat Rate
+      spree/calculator/returns/default_refund_amount:
+        one: Default Refund Amount
+        other: Default Refund Amount
+      spree/calculator/shipping/flat_percent_item_total:
+        one: Flat Percent
+        other: Flat Percent
+      spree/calculator/shipping/flat_rate:
+        one: Flat rate
+        other: Flat rate
+      spree/calculator/shipping/flexi_rate:
+        one: Flexible Rate per package item
+        other: Flexible Rate per package item
+      spree/calculator/shipping/per_item:
+        one: Flat rate per package item
+        other: Flat rate per package item
+      spree/calculator/shipping/price_sack:
+        one: Price sack
+        other: Price sack
       spree/country:
         one: Country
         other: Countries
@@ -424,9 +471,6 @@ en:
       spree/property:
         one: Property Type
         other: Property Types
-      spree/prototype:
-        one: Prototype
-        other: Prototypes
       spree/refund:
         one: Refund
         other: Refunds
@@ -538,8 +582,8 @@ en:
               cannot_destroy_shipment_state: "Cannot destroy an inventory unit for a %{state} shipment"
         spree/line_item:
           attributes:
-            currency:
-              must_match_order_currency: "Must match order currency"
+            price:
+              not_a_number: "is not valid"
         spree/price:
           attributes:
             currency:
@@ -682,6 +726,8 @@ en:
     adjustment: Adjustment
     adjustment_amount: Amount
     adjustment_labels:
+      line_item: '%{promotion} (%{promotion_name})'
+      order: '%{promotion} (%{promotion_name})'
       tax_rates:
         sales_tax: '%{name}'
         vat: '%{name} (Included in Price)'
@@ -697,42 +743,33 @@ en:
     adjustment_total: Adjustment Total
     adjustments: Adjustments
     admin:
-      tab:
-        areas: Locations
-        checkout: Refunds and Returns
-        configuration: Configuration
-        display_order: Display Order
-        general: Store
-        option_types: Option Types
-        orders: Orders
-        overview: Overview
-        payments: Payments
-        products: Products
-        promotions: Promotions
-        promotion_categories: Promotion Categories
-        properties: Property Types
-        prototypes: Prototypes
-        reports: Reports
-        rma: RMA
-        settings: Settings
-        shipping: Shipping
-        stock: Stock
-        stock_items: Store Stock
-        stock_transfers: Stock Transfers
-        taxes: Taxes
-        taxonomies: Taxonomies
-        taxons: Taxons
-        users: Users
-      user:
-        account: Account
-        addresses: Addresses
-        items: Items
-        items_purchased: Items Purchased
-        order_history: Order History
-        order_num: "Order #"
-        orders: Orders
-        store_credit: Store Credit
-        user_information: User Information
+      general_settings:
+        edit:
+          no_cart_tax_country: "No taxes on carts without address"
+      images:
+        index:
+          choose_files: Choose files to upload
+          drag_and_drop: or drag and drop them here
+          image_process_failed: Server failed to process the image
+          upload_images: Upload Images
+      payments:
+        source_forms:
+          storecredit:
+            not_supported: "Creating store credit payments via the admin is not currently supported."
+      prices:
+        any_country: "Any Country"
+        index:
+          amount_greater_than: Amount greater than
+          amount_less_than: Amount less than
+          new_price: New Price
+        edit:
+          edit_price: Edit Price
+        new:
+          new_price: New Price
+      promotions:
+        form:
+          starts_at_placeholder: Immediately
+          expires_at_placeholder: Never
       store_credits:
         add: "Add store credit"
         amount_authorized: "Amount Authorized"
@@ -766,6 +803,7 @@ en:
         select_amount_update_reason: "Select a reason for updating the amount"
         total_unused: "Total unused"
         type_html_header: "Credit Type"
+        view: "View store credit"
         errors:
           cannot_change_used_store_credit: "Store credit that has been claimed cannot be changed"
           cannot_be_modified: "cannot be modified"
@@ -773,8 +811,46 @@ en:
           amount_authorized_exceeds_total_credit: " exceeds the available credit"
           amount_used_not_zero: "is greater than zero. Can not delete store credit"
           update_reason_required: "A reason for the change must be selected"
+      tab:
+        areas: Locations
+        checkout: Refunds and Returns
+        configuration: Configuration
+        display_order: Display Order
+        general: Store
+        option_types: Option Types
+        orders: Orders
+        overview: Overview
+        payments: Payments
+        products: Products
+        promotions: Promotions
+        promotion_categories: Promotion Categories
+        properties: Property Types
+        reports: Reports
+        rma: RMA
+        settings: Settings
+        shipping: Shipping
+        stock: Stock
+        stock_items: Store Stock
+        stock_transfers: Stock Transfers
+        taxes: Taxes
+        taxonomies: Taxonomies
+        taxons: Taxons
+        users: Users
       taxons:
         display_order: Display Order
+      user:
+        account: Account
+        addresses: Addresses
+        items: Items
+        items_purchased: Items Purchased
+        order_history: Order History
+        order_num: "Order #"
+        orders: Orders
+        store_credit: Store Credit
+        user_information: User Information
+      users:
+        user_page_actions:
+          create_order: Create order for this user
       variants:
         table_filter:
           show_deleted: Show deleted variants
@@ -787,16 +863,6 @@ en:
           use_product_tax_category: Use Product Tax Category
           pricing: Pricing
           pricing_hint: These values are populated from the product details page and can be overridden below
-      prices:
-        any_country: "Any Country"
-        index:
-          amount_greater_than: Amount greater than
-          amount_less_than: Amount less than
-          new_price: New Price
-        edit:
-          edit_price: Edit Price
-        new:
-          new_price: New Price
     administration: Administration
     agree_to_privacy_policy: Agree to Privacy Policy
     agree_to_terms_of_service: Agree to Terms of Service
@@ -849,7 +915,6 @@ en:
     back_to_promotions_list: Back To Promotions List
     back_to_promotion_categories_list: Back To Promotions Categories List
     back_to_properties_list: Back To Property Types List
-    back_to_prototypes_list: Back To Prototypes List
     back_to_reports_list: Back To Reports List
     back_to_refund_reason_list: Back To Refund Reason List
     back_to_reimbursement_type_list: Back To Reimbursement Type List
@@ -970,7 +1035,6 @@ en:
     customer_returns: Customer Returns
     create: Create
     create_a_new_account: Create a new account
-    create_new_order: Create new order
     create_reimbursement: Create reimbursement
     create_one: Create One.
     created_at: Created At
@@ -1036,7 +1100,6 @@ en:
     editing_promotion: Editing Promotion
     editing_promotion_category: Editing Promotion Category
     editing_property: Editing Property Type
-    editing_prototype: Editing Prototype
     edit_refund_reason: Edit Refund Reason
     editing_refund: Editing Refund
     editing_refund_reason: Editing Refund Reason
@@ -1057,6 +1120,7 @@ en:
     eligibility_errors:
       messages:
         has_excluded_product: Your cart contains a product that prevents this coupon code from being applied.
+        has_excluded_taxon: Your cart contains a product from an excluded category that prevents this coupon code from being applied.
         item_total_less_than: This coupon code can't be applied to orders less than %{amount}.
         item_total_less_than_or_equal: This coupon code can't be applied to orders less than or equal to %{amount}.
         limit_once_per_user: This coupon code can only be used once per user.
@@ -1114,12 +1178,22 @@ en:
     hints:
       spree/price:
         country: "This determines in what country the price is valid.<br/>Default: Any Country"
+        master_variant: "Changing master variant prices will not change variant prices below, but will be used to populate all new variants"
+        options: "These options are used to create variants in the variants table. They can be changed in the variants tab"
       spree/product:
         promotionable: "This determines whether or not promotions can apply to this product.<br/>Default: Checked"
         shipping_category: "This determines what kind of shipping this product requires.<br/> Default: Default"
         tax_category: "This determines what kind of taxation is applied to this product.<br/> Default: None"
+      spree/promotion:
+        starts_at: "This determines when the promotion can be applied to orders. <br/> If no value is specified, the promotion will be immediately available."
+        expires_at: "This determines when the promotion expires. <br/> If no value is specified, the promotion will never expires."
+      spree/store:
+        cart_tax_country_iso: "This determines which country is used for taxes on carts (orders which don't yet have an address).<br/> Default: None."
       spree/variant:
         tax_category: "This determines what kind of taxation is applied to this variant.<br/> Default: Use tax category of the product associated with this variant"
+        deleted: "Deleted Variant"
+        deleted_explanation: "This variant was deleted on %{date}."
+        deleted_explanation_with_replacement: "This variant was deleted on %{date}. It has since been replaced by another with the same SKU."
     failed_payment_attempts: Failed Payment Attempts
     failure: Failure
     filename: Filename
@@ -1207,6 +1281,7 @@ en:
     inventory_adjustment: Inventory Adjustment
     inventory_canceled: Inventory canceled
     inventory_error_flash_for_insufficient_quantity: An item in your cart has become unavailable.
+    inventory_not_available: Inventory not available for %{item}.
     inventory_state: Inventory State
     inventory_states:
       backordered: backordered
@@ -1265,6 +1340,7 @@ en:
     manual_intervention_required: Manual intervention required
     manage_variants: Manage Variants
     master_price: Master Price
+    master_variant: Master Variant
     match_choices:
       all: All
       none: None
@@ -1301,7 +1377,6 @@ en:
     new_promotion: New Promotion
     new_promotion_category: New Promotion Category
     new_property: New Property Type
-    new_prototype: New Prototype
     new_refund: New Refund
     new_refund_reason: New Refund Reason
     new_rma_reason: New RMA Reason
@@ -1565,6 +1640,9 @@ en:
         description: Available only to user who have not purchased in a while
         name: First Repeat Purchase Since
         form_text: "Apply this promotion to users whose last order was more than X days ago: "
+      user_role:
+        description: Order includes User with specified Role(s)
+        name: User Role(s)
     promotions: Promotions
     promotion_successfully_created: Promotion has been successfully created!
     promotion_total_changed_before_complete: "One or more of the promotions on your order have become ineligible and were removed. Please check the new order amounts and try again."
@@ -1572,8 +1650,6 @@ en:
     propagate_all_variants: Propagate all variants
     properties: Property Types
     property: Property Type
-    prototype: Prototype
-    prototypes: Prototypes
     provider: Provider
     provider_settings_warning: If you are changing the provider type, you must save first before you can edit the provider settings
     qty: Qty
@@ -1670,7 +1746,6 @@ en:
     secure_connection_type: Secure Connection Type
     security_settings: Security Settings
     select: Select
-    select_from_prototype: Select From Prototype
     select_a_reason: Select a reason
     select_a_stock_location: Select a stock location
     select_stock: Select stock
@@ -1837,6 +1912,7 @@ en:
       label: Order must contain %{select} of these taxons
       match_all: all
       match_any: at least one
+      match_none: none
     taxonomies: Taxonomies
     taxonomy: Taxonomy
     taxonomy_edit: Edit taxonomy
@@ -1903,6 +1979,11 @@ en:
     user: User
     user_rule:
       choose_users: Choose users
+    user_role_rule:
+      choose_roles: Choose Roles
+      label: User must contain %{select} of these roles
+      match_all: all
+      match_any: at least one
     users: Users
     validation:
       unpaid_amount_not_zero: "Amount was not fully reimbursed. Still due: %{amount}"
@@ -1915,6 +1996,7 @@ en:
     value: Value
     variant: Variant
     variant_placeholder: Choose a variant
+    variant_pricing: Variant Pricing
     variant_properties: Variant Properties
     variant_search: Variant Search
     variant_search_placeholder: "SKU or Option Value"

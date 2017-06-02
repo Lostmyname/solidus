@@ -4,10 +4,6 @@ module Spree
   class Calculator::DefaultTax < Calculator
     include Spree::Tax::TaxHelpers
 
-    def self.description
-      Spree.t(:default_tax)
-    end
-
     # Default tax calculator still needs to support orders for legacy reasons
     # Orders created before Spree 2.1 had tax adjustments applied to the order, as a whole.
     # Orders created with Spree 2.2 and after, have them applied to the line items individually.
@@ -19,7 +15,7 @@ module Spree
       line_items_total = matched_line_items.sum(&:discounted_amount)
       if rate.included_in_price
         order_tax_amount = round_to_two_places(line_items_total - ( line_items_total / (1 + rate.amount) ) )
-        refund_if_necessary(order_tax_amount, order.tax_zone)
+        refund_if_necessary(order_tax_amount, order.tax_address)
       else
         round_to_two_places(line_items_total * rate.amount)
       end
@@ -52,20 +48,20 @@ module Spree
       unrounded_net_amount = item.discounted_amount / (1 + sum_of_included_tax_rates(item))
       refund_if_necessary(
         round_to_two_places(unrounded_net_amount * rate.amount),
-        item.order.tax_zone
+        item.order.tax_address
       )
     end
 
-    def refund_if_necessary(amount, order_tax_zone)
-      if default_zone_or_zone_match?(order_tax_zone)
+    def refund_if_necessary(amount, order_tax_address)
+      if default_zone_or_zone_match?(order_tax_address)
         amount
       else
         amount * -1
       end
     end
 
-    def default_zone_or_zone_match?(order_tax_zone)
-      Zone.default_tax.try!(:contains?, order_tax_zone) || rate.zone.contains?(order_tax_zone)
+    def default_zone_or_zone_match?(order_tax_address)
+      Zone.default_tax.try!(:include?, order_tax_address) || rate.zone.include?(order_tax_address)
     end
   end
 end

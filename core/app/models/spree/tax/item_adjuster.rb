@@ -16,21 +16,35 @@ module Spree
         @item = item
         @order = @item.order
         # set instance variable so `TaxRate.match` is only called when necessary
-        @rates_for_order_zone = options[:rates_for_order_zone]
+        @rates_for_order = options[:rates_for_order]
         @rates_for_default_zone = options[:rates_for_default_zone]
-        @order_tax_zone = options[:order_tax_zone]
       end
 
-      # Deletes all existing tax adjustments and creates new adjustments for all
-      # (geographically and category-wise) applicable tax rates.
-      #
-      # @return [Array<Spree::Adjustment>] newly created adjustments
+      # This updates the amounts for adjustments which already exist and
+      # creates and remove adjustments as needed to match the applicable
+      # (geographically and category-wise) tax rates.
       def adjust!
-        return unless order_tax_zone(order)
+        rates = rates_for_item(item)
 
-        item.adjustments.destroy(item.adjustments.select(&:tax?))
+        tax_adjustments = item.adjustments.select(&:tax?)
+        active_adjustments = rates.map do |rate|
+          # Find an existing adjustment from the same source.
+          # All tax adjustments already have source_type == 'Spree::TaxRate' so
+          # we need only check source_id.
+          adjustment = tax_adjustments.detect{|a| a.source_id == rate.id }
+          if adjustment
+            adjustment.update!
+            adjustment
+          else
+            # Create a new adjustment
+            rate.adjust(nil, item)
+          end
+        end
 
-        rates_for_item(item).map { |rate| rate.adjust(order_tax_zone(order), item) }
+        unmatched_adjustments = tax_adjustments - active_adjustments
+
+        # Remove any tax adjustments tied to rates which no longer match
+        item.adjustments.destroy(unmatched_adjustments)
       end
     end
   end

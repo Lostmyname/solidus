@@ -1,20 +1,3 @@
-[data-hook="admin_products_index_search"] {
-  @include make-row();
-
-  > * {
-    @include make-col();
-    @include padding(0 null); // override the padding on .field
-  }
-}
-
-.product-search-field-name {
-  @include make-col-span(6);
-}
-
-.product-search-field-sku {
-  @include make-col-span(4);
-}
-
 .product-search-field-show-deleted.field.checkbox {
   // extra specificity to override styles
   @include make-col-span(2);
@@ -51,4 +34,33 @@ div[data-hook="admin_products_index_search_buttons"] {
   strong {
     color: $color-2;
   }
+}
+
+#upload-zone {
+  border: 2px dashed $color-border;
+  padding: 2rem 5rem;
+  text-align: center;
+  margin: 1rem auto;
+  width: 70%;
+
+  label.upload {
+    display: block;
+  }
+
+  &.with-images {
+    border-color: $color-success;
+  }
+}
+
+progress {
+  width: 100%;
+}
+
+.margin-bottom-one {
+  margin-bottom: 1rem;
+}
+
+.progress-card {
+  height: 100%;
+  padding: 1rem;
 }

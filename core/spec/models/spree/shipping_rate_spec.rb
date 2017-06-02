@@ -19,8 +19,9 @@ describe Spree::ShippingRate, type: :model do
   end
 
   context "#display_price" do
-    let!(:default_zone) { create :zone, countries: [address.country], default_tax: true }
+    let!(:default_zone) { create :zone, countries: [address.country], default_tax: default_tax }
     let!(:other_zone) { create :zone, countries: [foreign_address.country] }
+    let(:default_tax) { false }
 
     before do
       allow(order).to receive(:tax_address).and_return(order_address)
@@ -57,6 +58,7 @@ describe Spree::ShippingRate, type: :model do
     end
 
     context 'with one tax rate that will be refunded' do
+      let(:default_tax) { true }
       let!(:tax_rate) do
         create :tax_rate,
         included_in_price: true,
@@ -68,7 +70,9 @@ describe Spree::ShippingRate, type: :model do
       let(:order_address) { foreign_address }
 
       before do
-        Spree::Tax::ShippingRateTaxer.new.tax(shipping_rate)
+        Spree::Deprecation.silence do
+          Spree::Tax::ShippingRateTaxer.new.tax(shipping_rate)
+        end
       end
 
       it "shows correct tax amount" do
@@ -141,7 +145,9 @@ describe Spree::ShippingRate, type: :model do
       end
 
       it "shows correct tax amount" do
-        expect(shipping_rate.display_price.to_s).to eq("$10.00 (+ $1.00 Sales Tax, + $0.50 Other Sales Tax)")
+        expect(shipping_rate.display_price.to_s).to match(/\$10.00 \(.*, .*\)/)
+        expect(shipping_rate.display_price.to_s).to include("+ $1.00 Sales Tax")
+        expect(shipping_rate.display_price.to_s).to include("+ $0.50 Other Sales Tax")
       end
 
       context "when cost is zero" do

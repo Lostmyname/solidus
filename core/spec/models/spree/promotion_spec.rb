@@ -141,6 +141,30 @@ describe Spree::Promotion, type: :model do
           expect(promotion.activate(@payload)).to be true
           expect(promotion.orders.first).to eql @order
         end
+
+        it 'keeps in-memory associations updated' do
+          # load all the relevant associations into memory
+          promotion.order_promotions.to_a
+          promotion.orders.to_a
+          @order.order_promotions.to_a
+          @order.promotions.to_a
+
+          expect(promotion.order_promotions.size).to eq(0)
+          expect(promotion.orders.size).to eq(0)
+          expect(@order.order_promotions.size).to eq(0)
+          expect(@order.promotions.size).to eq(0)
+
+          expect(
+            promotion.activate(@payload)
+          ).to eq(true)
+
+          aggregate_failures do
+            expect(promotion.order_promotions.size).to eq(1)
+            expect(promotion.orders.size).to eq(1)
+            expect(@order.order_promotions.size).to eq(1)
+            expect(@order.promotions.size).to eq(1)
+          end
+        end
       end
       context "when not activated" do
         it "will not assign the order" do
@@ -184,6 +208,25 @@ describe Spree::Promotion, type: :model do
         expect(promotion.activate(order: @order, promotion_code: promotion_code)).to be true
         expect(promotion.order_promotions.map(&:promotion_code)).to eq [promotion_code]
       end
+    end
+  end
+
+  describe '#remove_from' do
+    let(:promotion) { create(:promotion, :with_line_item_adjustment) }
+    let(:order) { create(:order_with_line_items) }
+
+    before do
+      promotion.activate(order: order)
+    end
+
+    it 'removes the promotion' do
+      expect(order.promotions).to include(promotion)
+      expect(order.line_items.flat_map(&:adjustments)).to be_present
+
+      promotion.remove_from(order)
+
+      expect(order.promotions).to be_empty
+      expect(order.line_items.flat_map(&:adjustments)).to be_empty
     end
   end
 

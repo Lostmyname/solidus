@@ -2,6 +2,23 @@ require 'spree/core/validators/email'
 require 'spree/order/checkout'
 
 module Spree
+  # The customers cart until completed, then acts as permenent record of the transaction.
+  #
+  # `Spree::Order` is the heart of the Solidus system, as it acts as the customer's
+  # cart as they shop. Once an order is complete, it serves as the
+  # permenent record of their purchase. It has many responsibilities:
+  #
+  # * Records and validates attributes like `total` and relationships like
+  # `Spree::LineItem` as an ActiveRecord model.
+  #
+  # * Implements a customizable state machine to manage the lifecycle of an order.
+  #
+  # * Implements business logic to provide a single interface for quesitons like
+  # `checkout_allowed?` or `payment_required?`.
+  #
+  #  * Implements an interface for mutating the order with methods like
+  # `empty!` and `fulfill!`.
+  #
   class Order < Spree::Base
     ORDER_NUMBER_LENGTH  = 9
     ORDER_NUMBER_LETTERS = false
@@ -93,7 +110,7 @@ module Spree
     before_create :link_by_email
 
     validates :email, presence: true, if: :require_email
-    validates :email, email: true, if: :require_email, allow_blank: true
+    validates :email, email: true, allow_blank: true
     validates :number, presence: true, uniqueness: { allow_blank: true }
     validates :store_id, presence: true
 
@@ -109,13 +126,6 @@ module Spree
 
     class_attribute :line_item_comparison_hooks
     self.line_item_comparison_hooks = Set.new
-
-    class << self
-      def by_number(number)
-        where(number: number)
-      end
-      deprecate :by_number, deprecator: Spree::Deprecation
-    end
 
     scope :created_between, ->(start_date, end_date) { where(created_at: start_date..end_date) }
     scope :completed_between, ->(start_date, end_date) { where(completed_at: start_date..end_date) }
@@ -195,7 +205,7 @@ module Spree
 
     # Is this a free order in which case the payment step should be skipped
     def payment_required?
-      total.to_f > 0.0
+      total > 0
     end
 
     def confirmation_required?
@@ -210,8 +220,10 @@ module Spree
     # Returns the relevant zone (if any) to be used for taxation purposes.
     # Uses default tax zone unless there is a specific match
     def tax_zone
-      @tax_zone ||= Zone.match(tax_address) || Zone.default_tax
+      Zone.match(tax_address) || Zone.default_tax
     end
+    deprecate tax_zone: "Please use Spree::Order#tax_address instead.",
+              deprecator: Spree::Deprecation
 
     # Returns the address for taxation based on configuration
     def tax_address
@@ -416,12 +428,10 @@ module Spree
     end
 
     def available_payment_methods
-      @available_payment_methods ||= (
-        PaymentMethod.available(:front_end, store: store) +
-        PaymentMethod.available(:both, store: store)
-      ).
-      uniq.
-      sort_by(&:position)
+      @available_payment_methods ||= Spree::PaymentMethod
+        .available_to_store(store)
+        .available_to_users
+        .sort_by(&:position)
     end
 
     def insufficient_stock_lines
@@ -574,11 +584,6 @@ module Spree
       !approved?
     end
 
-    def reload(options = nil)
-      remove_instance_variable(:@tax_zone) if defined?(@tax_zone)
-      super
-    end
-
     def quantity
       line_items.sum(:quantity)
     end
@@ -592,13 +597,6 @@ module Spree
       Spree::Deprecation.warn("Spree::Order#token is DEPRECATED, please use #guest_token instead.", caller)
       guest_token
     end
-
-    # @deprecated Do not use this method. Behaviour is unreliable.
-    def fully_discounted?
-      adjustment_total + line_items.map(&:final_amount).sum == 0.0
-    end
-    alias_method :fully_discounted, :fully_discounted?
-    deprecate :fully_discounted, deprecator: Spree::Deprecation
 
     def unreturned_exchange?
       # created_at - 1 is a hack to ensure that this doesn't blow up on MySQL,

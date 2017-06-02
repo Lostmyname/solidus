@@ -71,16 +71,6 @@ Spree::Core::Engine.routes.draw do
 
     delete '/product_properties/:id', to: "product_properties#destroy", as: :product_property
 
-    resources :prototypes do
-      member do
-        get :select
-      end
-
-      collection do
-        get :available
-      end
-    end
-
     resources :orders, except: [:show] do
       member do
         get :cart
@@ -183,7 +173,6 @@ Spree::Core::Engine.routes.draw do
     resources :stock_items, except: [:show, :new, :edit]
     resources :tax_rates
 
-    resources :trackers
     resources :payment_methods do
       collection do
         post :update_positions

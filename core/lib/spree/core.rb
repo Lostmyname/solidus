@@ -46,16 +46,6 @@ module Spree
   module Core
     autoload :ProductFilters, "spree/core/product_filters"
 
-    def self.const_missing(name)
-      case name
-      when :AdjustmentSource, :CalculatedAdjustments, :UserAddress, :UserPaymentSource
-        Spree::Deprecation.warn("Spree::Core::#{name} is deprecated! Use Spree::#{name} instead.", caller)
-        Spree.const_get(name)
-      else
-        super
-      end
-    end
-
     class GatewayError < RuntimeError; end
     class DestroyWithOrdersError < StandardError; end
   end
@@ -77,7 +67,6 @@ require 'spree/localized_number'
 require 'spree/money'
 require 'spree/permitted_attributes'
 
-require 'spree/core/delegate_belongs_to'
 require 'spree/core/importer'
 require 'spree/core/permalinks'
 require 'spree/core/product_duplicator'
@@ -96,9 +85,5 @@ require 'spree/core/role_configuration'
 require 'spree/core/stock_configuration'
 require 'spree/permission_sets'
 require 'spree/deprecation'
-
-require 'spree/mailer_previews/order_preview'
-require 'spree/mailer_previews/carton_preview'
-require 'spree/mailer_previews/reimbursement_preview'
 
 require 'spree/core/price_migrator'

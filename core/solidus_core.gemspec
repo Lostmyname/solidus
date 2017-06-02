@@ -12,12 +12,13 @@ Gem::Specification.new do |s|
   s.author      = 'Solidus Team'
   s.email       = 'contact@solidus.io'
   s.homepage    = 'http://solidus.io'
-  s.license     = 'BSD-3'
+  s.license     = 'BSD-3-Clause'
 
   s.files        = `git ls-files`.split("\n")
   s.require_path = 'lib'
 
-  s.required_ruby_version = '>= 2.1.0'
+  s.required_ruby_version     = '>= 2.2.2'
+  s.required_rubygems_version = '>= 1.8.23'
 
   s.add_dependency 'activemerchant', '~> 1.48'
   s.add_dependency 'acts_as_list', '~> 0.3'
@@ -26,7 +27,7 @@ Gem::Specification.new do |s|
   s.add_dependency 'cancancan', '~> 1.10'
   s.add_dependency 'ffaker', '~> 2.0'
   s.add_dependency 'friendly_id', '~> 5.0'
-  s.add_dependency 'highline', '~> 1.6.18' # Necessary for the install generator
+  s.add_dependency 'highline', '~> 1.7' # Necessary for the install generator
   s.add_dependency 'kaminari', '~> 0.15', '>= 0.15.1'
   s.add_dependency 'monetize', '~> 1.1'
   s.add_dependency 'paperclip', '~> 4.2'

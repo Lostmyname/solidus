@@ -70,7 +70,7 @@ module Spree
 
     @@product_attributes = [
       :name, :description, :available_on, :permalink, :meta_description,
-      :meta_keywords, :price, :sku, :deleted_at, :prototype_id,
+      :meta_keywords, :price, :sku, :deleted_at,
       :option_values_hash, :weight, :height, :width, :depth,
       :shipping_category_id, :tax_category_id,
       :taxon_ids, :option_type_ids, :cost_currency, :cost_price]
@@ -102,7 +102,8 @@ module Spree
       :quantity, :stock_item, :stock_item_id, :originator, :action]
 
     @@store_attributes = [:name, :url, :seo_title, :meta_keywords,
-                          :meta_description, :default_currency, :mail_from_address]
+                          :meta_description, :default_currency,
+                          :mail_from_address, :cart_tax_country_iso]
 
     @@taxonomy_attributes = [:name]
 

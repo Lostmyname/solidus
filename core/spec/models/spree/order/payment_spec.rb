@@ -77,11 +77,8 @@ module Spree
         }
       end
 
-      # For the reason of this test, please see spree/spree_gateway#132
       it "keeps source attributes on assignment" do
-        Spree::Deprecation.silence do
-          order.update_attributes(payments_attributes: [payment_attributes])
-        end
+        OrderUpdateAttributes.new(order, payments_attributes: [payment_attributes]).apply
         expect(order.unprocessed_payments.last.source.number).to be_present
       end
 
@@ -218,15 +215,27 @@ module Spree
       end
     end
 
-    context "payment required?" do
+    context "payment_required?" do
+      before { order.total = total }
+
       context "total is zero" do
-        before { allow(order).to receive_messages(total: 0) }
-        it { expect(order.payment_required?).to be false }
+        let(:total) { 0 }
+        it { expect(order).not_to be_payment_required }
       end
 
-      context "total > zero" do
-        before { allow(order).to receive_messages(total: 1) }
-        it { expect(order.payment_required?).to be true }
+      context "total is once cent" do
+        let(:total) { 1 }
+        it { expect(order).to be_payment_required }
+      end
+
+      context "total is once dollar" do
+        let(:total) { 1 }
+        it { expect(order).to be_payment_required }
+      end
+
+      context "total is huge" do
+        let(:total) { 2**32 }
+        it { expect(order).to be_payment_required }
       end
     end
   end

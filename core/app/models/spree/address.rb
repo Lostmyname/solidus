@@ -1,6 +1,10 @@
 require 'twitter_cldr'
 
 module Spree
+  # `Spree::Address` provides the foundational ActiveRecord model for recording and
+  # validating address information for `Spree::Order`, `Spree::Shipment`,
+  # `Spree::UserAddress`, and `Spree::Carton`.
+  #
   class Address < Spree::Base
     extend ActiveModel::ForbiddenAttributesProtection
 
@@ -27,15 +31,6 @@ module Spree
 
     def self.build_default
       new(country: Spree::Country.default)
-    end
-
-    def self.default(user = nil, kind = "bill")
-      Spree::Deprecation.warn("Address.default is deprecated. Use User.default_address or Address.build_default", caller)
-      if user
-        user.send(:"#{kind}_address") || build_default
-      else
-        build_default
-      end
     end
 
     # @return [Address] an equal address already in the database or a newly created one

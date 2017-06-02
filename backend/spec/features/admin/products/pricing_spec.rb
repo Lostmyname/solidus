@@ -30,12 +30,11 @@ describe 'Pricing' do
         expect(page).to have_content("Prices")
       end
 
-      within('table.prices') do
+      within('table.master_prices') do
         expect(page).to have_content("$19.99")
         expect(page).to have_content("USD")
         expect(page).to have_content("34.56 ₽")
         expect(page).to have_content("RUB")
-        expect(page).to have_content("Master")
         expect(page).to have_content("Any Country")
         expect(page).to have_content("Germany")
       end
@@ -60,6 +59,22 @@ describe 'Pricing' do
         click_button "Filter Results"
         expect(page).to have_content("20")
         expect(page).to_not have_content("49.99")
+      end
+    end
+
+    context "editing" do
+      let(:variant) { create(:variant, price: 20) }
+      let(:product) { variant.product }
+
+      before do
+        product.master.update(price: 49.99)
+      end
+
+      it 'has a working edit page' do
+        within "#spree_price_#{product.master.prices.first.id}" do
+          click_icon :edit
+        end
+        expect(page).to have_content("Edit Price")
       end
     end
 

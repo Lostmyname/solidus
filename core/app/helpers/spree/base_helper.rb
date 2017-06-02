@@ -66,8 +66,8 @@ module Spree
       nil
     end
 
-    def taxon_breadcrumbs(taxon, separator = "&nbsp;&raquo;&nbsp;", breadcrumb_class = "inline")
-      return "" if current_page?("/") || taxon.nil?
+    def taxon_breadcrumbs(taxon, separator = '&nbsp;&raquo;&nbsp;', breadcrumb_class = 'inline')
+      return '' if current_page?('/') || taxon.nil?
 
       crumbs = [[Spree.t(:home), spree.root_path]]
 
@@ -81,15 +81,15 @@ module Spree
 
       separator = raw(separator)
 
-      crumbs.map! do |crumb|
-        content_tag(:li, itemscope: "itemscope", itemtype: "http://data-vocabulary.org/Breadcrumb") do
-          link_to(crumb.last, itemprop: "url") do
-            content_tag(:span, crumb.first, itemprop: "title")
+      items = crumbs.each_with_index.collect do |crumb, i|
+        content_tag(:li, itemprop: 'itemListElement', itemscope: '', itemtype: 'https://schema.org/ListItem') do
+          link_to(crumb.last, itemprop: 'item') do
+            content_tag(:span, crumb.first, itemprop: 'name') + tag('meta', { itemprop: 'position', content: (i+1).to_s }, false, false)
           end + (crumb == crumbs.last ? '' : separator)
         end
       end
 
-      content_tag(:nav, content_tag(:ul, raw(crumbs.map(&:mb_chars).join), class: breadcrumb_class), id: 'breadcrumbs', class: 'sixteen columns')
+      content_tag(:nav, content_tag(:ol, raw(items.map(&:mb_chars).join), class: breadcrumb_class, itemscope: '', itemtype: 'https://schema.org/BreadcrumbList'), id: 'breadcrumbs', class: 'sixteen columns')
     end
 
     def taxons_tree(root_taxon, current_taxon, max_level = 1)
@@ -134,15 +134,6 @@ module Spree
        time.strftime("%l:%M %p")].join(" ")
     end
 
-    def method_missing(method_name, *args, &block)
-      if image_style = image_style_from_method_name(method_name)
-        define_image_method(image_style)
-        send(method_name, *args)
-      else
-        super
-      end
-    end
-
     def link_to_tracking(shipment, options = {})
       return unless shipment.tracking && shipment.shipping_method
 
@@ -157,37 +148,5 @@ module Spree
       resource_class.model_name.human(count: Spree::I18N_GENERIC_PLURAL)
     end
 
-    private
-
-    # Returns style of image or nil
-    def image_style_from_method_name(method_name)
-      if method_name.to_s.match(/_image$/) && style = method_name.to_s.sub(/_image$/, '')
-        possible_styles = Spree::Image.attachment_definitions[:attachment][:styles]
-        style if style.in? possible_styles.with_indifferent_access
-      end
-    end
-
-    def create_product_image_tag(image, product, options, style)
-      options.reverse_merge! alt: image.alt.blank? ? product.name : image.alt
-      image_tag image.attachment.url(style), options
-    end
-
-    def define_image_method(style)
-      self.class.send :define_method, "#{style}_image" do |product, *options|
-        Spree::Deprecation.warn "Spree image helpers will be deprecated in the near future. Use the provided resource to access the intendend image directly.", caller
-        options = options.first || {}
-        if product.images.empty?
-          if !product.is_a?(Spree::Variant) && !product.variant_images.empty?
-            create_product_image_tag(product.variant_images.first, product, options, style)
-          elsif product.is_a?(Variant) && !product.product.variant_images.empty?
-            create_product_image_tag(product.product.variant_images.first, product, options, style)
-          else
-            image_tag "noimage/#{style}.png", options
-          end
-        else
-          create_product_image_tag(product.images.first, product, options, style)
-        end
-      end
-    end
   end
 end

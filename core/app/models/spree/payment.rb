@@ -1,4 +1,8 @@
 module Spree
+  # Manage and process a payment for an order, from a specific
+  # source (e.g. `Spree::CreditCard`) using a specific payment method (e.g
+  # `Solidus::Gateway::Braintree`).
+  #
   class Payment < Spree::Base
     include Spree::Payment::Processing
 
@@ -31,9 +35,6 @@ module Spree
 
     # invalidate previously entered payments
     after_create :invalidate_old_payments
-
-    attr_accessor :source_attributes
-    after_initialize :apply_source_attributes
 
     attr_accessor :request_env
 
@@ -145,25 +146,6 @@ module Spree
       credit_allowed > 0
     end
 
-    # When this is a new record without a source, builds a new source based on
-    # this payment's payment method and associates it correctly.
-    #
-    # @see https://github.com/spree/spree/issues/981
-    #
-    # TODO: Move this into upcoming CartUpdate class
-    def apply_source_attributes
-      return unless new_record?
-      return if source_attributes.blank?
-
-      Spree::Deprecation.warn(<<WARN.squish)
-Building payment sources by assigning source_attributes on payments is
-deprecated. Instead use either the PaymentCreate class or the
-OrderUpdateAttributes class.
-WARN
-
-      PaymentCreate.new(order, { source_attributes: source_attributes }, payment: self, request_env: request_env).build
-    end
-
     # @return [Array<String>] the actions available on this payment
     def actions
       sa = source_actions
@@ -248,7 +230,11 @@ WARN
 
     def invalidate_old_payments
       if !store_credit? && !['invalid', 'failed'].include?(state)
-        order.payments.checkout.where(payment_method: payment_method).where("id != ?", id).each(&:invalidate!)
+        order.payments.select do |payment|
+          payment.state == 'checkout' &&
+            payment.payment_method_id == payment_method.try!(:id) &&
+            payment.id != id
+        end.each(&:invalidate!)
       end
     end
 

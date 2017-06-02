@@ -15,15 +15,17 @@ module Spree
     # object with callbacks (otherwise you will end up in an infinite recursion as the
     # associations try to save and then in turn try to call +update!+ again.)
     def update
-      update_item_count
-      update_totals
-      if order.completed?
-        update_payment_state
-        update_shipments
-        update_shipment_state
+      @order.transaction do
+        update_item_count
+        update_totals
+        if order.completed?
+          update_payment_state
+          update_shipments
+          update_shipment_state
+        end
+        run_hooks
+        persist_totals
       end
-      run_hooks
-      persist_totals
     end
 
     def run_hooks
@@ -188,7 +190,7 @@ module Spree
 
     # Update and select the best promotion adjustment for the order.
     # We don't update the order.promo_total yet. Order totals are updated later
-    # in #update_adjustment_total since they include the totals from the ordre's
+    # in #update_adjustment_total since they include the totals from the order's
     # line items and/or shipments.
     def update_order_promotions
       promotion_adjustments = order.adjustments.select(&:promotion?)

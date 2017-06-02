@@ -37,14 +37,12 @@
 @import 'spree/backend/plugins/select2';
 @import 'spree/backend/plugins/bootstrap_tooltip';
 
-@import 'spree/backend/sections/adjustments_table';
+@import 'spree/backend/sections/adjustments';
 @import 'spree/backend/sections/orders';
 @import 'spree/backend/sections/products';
 @import 'spree/backend/sections/promotions';
-@import 'spree/backend/sections/edit_checkouts';
 @import 'spree/backend/sections/bulk_transfer';
 @import 'spree/backend/sections/return_authorizations';
-@import 'spree/backend/sections/tax_zones';
 @import 'spree/backend/sections/log_entries';
 @import 'spree/backend/sections/taxonomies';
 @import 'spree/backend/sections/taxons';

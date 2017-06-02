@@ -6,12 +6,12 @@ module Spree
       before_action :find_payment, only: [:update, :show, :authorize, :purchase, :capture, :void, :credit]
 
       def index
-        @payments = @order.payments.ransack(params[:q]).result.page(params[:page]).per(params[:per_page])
+        @payments = paginate(@order.payments.ransack(params[:q]).result)
         respond_with(@payments)
       end
 
       def new
-        @payment_methods = Spree::PaymentMethod.available
+        @payment_methods = Spree::PaymentMethod.available_to_users.available_to_admin
         respond_with(@payment_method)
       end
 
