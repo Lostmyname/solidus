@@ -375,6 +375,16 @@ module Spree
       @automatic_promotion_decision_class ||= Spree::Promotion::AutomaticPromotionDecision
     end
 
+    # Allows providing your own class for choosing which store to use.
+    #
+    # @!attribute [rw] current_store_selector_class
+    # @return [Class] a class with the same public interfaces as
+    #   Spree::CurrentStoreSelector
+    attr_writer :current_store_selector_class
+    def current_store_selector_class
+      @current_store_selector_class ||= Spree::CurrentStoreSelector
+    end
+
     def static_model_preferences
       @static_model_preferences ||= Spree::Preferences::StaticModelPreferences.new
     end
