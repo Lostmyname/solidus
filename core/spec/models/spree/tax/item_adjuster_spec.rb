@@ -116,7 +116,7 @@ RSpec.describe Spree::Tax::ItemAdjuster do
               it 'updates the adjustment' do
                 item.update_columns(price: item.price * 2)
                 adjuster.adjust!
-                expect(tax_adjustments.length).to eq(1)
+                expect(tax_adjustments.length).to eq(2)
                 expect(tax_adjustments.first.amount).to eq(0.1 * item.price)
               end
             end
