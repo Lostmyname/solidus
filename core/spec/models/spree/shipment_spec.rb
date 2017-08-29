@@ -152,6 +152,7 @@ describe Spree::Shipment, type: :model do
     end
     let!(:admin_adjustment) { create(:adjustment, adjustable: shipment, order: shipment.order, amount: -1, source: nil) }
     let!(:promo_adjustment) { create(:adjustment, adjustable: shipment, order: shipment.order, amount: -2, source: promo_action) }
+    let!(:ineligible_promo_adjustment) { create(:adjustment, eligible: false, adjustable: shipment, order: shipment.order, amount: -4, source: promo_action) }
     let(:promo_action) { promo.actions[0] }
     let(:promo) { create(:promotion, :with_line_item_adjustment) }
 

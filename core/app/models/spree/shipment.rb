@@ -126,7 +126,7 @@ module Spree
     # @return [BigDecimal] the amount of this item, taking into consideration
     #   all non-tax adjustments.
     def final_amount_without_additional_tax
-      amount + adjustments.reject(&:tax?).sum(&:amount)
+      amount + adjustments.select { |a| !a.tax? && a.eligible? }.sum(&:amount)
     end
 
     def final_price
