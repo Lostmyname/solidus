@@ -89,7 +89,11 @@ module Spree
     end
 
     extend DisplayMoney
-    money_methods :cost, :amount, :discounted_cost, :final_price, :item_cost
+    money_methods(
+      :cost, :amount, :discounted_cost, :final_price, :item_cost,
+      :final_amount_without_additional_tax,
+    )
+    deprecate display_discounted_cost: :display_final_amount_without_additional_tax, deprecator: Spree::Deprecation
     alias_attribute :amount, :cost
 
     def add_shipping_method(shipping_method, selected = false)
@@ -115,10 +119,14 @@ module Spree
     def discounted_cost
       cost + promo_total
     end
+    deprecate discounted_cost: :final_amount_without_additional_tax, deprecator: Spree::Deprecation
     alias discounted_amount discounted_cost
+    deprecate discounted_amount: :final_amount_without_additional_tax, deprecator: Spree::Deprecation
 
-    def editable_by?(_user)
-      !shipped?
+    # @return [BigDecimal] the amount of this item, taking into consideration
+    #   all non-tax adjustments.
+    def final_amount_without_additional_tax
+      amount + adjustments.select { |a| !a.tax? && a.eligible? }.sum(&:amount)
     end
 
     def final_price
@@ -127,6 +135,10 @@ module Spree
 
     def final_price_with_items
       item_cost + final_price
+    end
+
+    def editable_by?(_user)
+      !shipped?
     end
 
     # Decrement the stock counts for all pending inventory units in this
@@ -163,7 +175,7 @@ module Spree
     end
 
     def pre_tax_amount
-      discounted_amount - included_tax_total
+      final_amount_without_additional_tax - included_tax_total
     end
 
     def ready_or_pending?
