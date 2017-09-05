@@ -7,6 +7,13 @@
     <% end %>
   </div>
   <div class="col-xs-12">
+    <%= f.field_container :currency do %>
+      <%= f.label :currency, class: 'required' %><br />
+      <%= f.text_field :currency %>
+      <%= f.error_message_on :currency %>
+    <% end %>
+  </div>
+  <div class="col-xs-12">
     <%= f.field_container :category do %>
       <%= f.label :category_id, class: 'required' %><br />
       <%= f.select :category_id, options_from_collection_for_select(@credit_categories, :id, :name, f.object.category.try(:id)),
