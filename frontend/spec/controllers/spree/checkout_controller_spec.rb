@@ -383,13 +383,10 @@ describe Spree::CheckoutController, type: :controller do
       end
 
       context "when the country is not a shippable country" do
+        let(:foreign_address) { create(:address, country_iso_code: "CA") }
+
         before do
-          order.ship_address.tap do |address|
-            # A different country which is not included in the list of shippable countries
-            australia = create(:country, name: "Australia")
-            # update_columns to get around readonly restriction when testing
-            address.update_columns(country_id: australia.id, state_name: 'Victoria')
-          end
+          order.update_attributes!(shipping_address: foreign_address)
 
           payment_method = FactoryGirl.create(:simple_credit_card_payment_method)
           payment = FactoryGirl.create(:payment, payment_method: payment_method)
