@@ -39,11 +39,11 @@ Spree.Views.StateSelect = Backbone.View.extend({
   },
 
   render: function() {
-    this.$state_select.empty().select2("destroy").hide();
-    this.$state_input.hide();
+    this.$state_select.empty().select2("destroy").hide().select2('disable');
+    this.$state_input.hide().prop('disabled', true);
 
     if (!this.states.fetched) {
-      this.$state_select.show().select2().select2("disable");
+      this.$state_select.show().select2();
     } else if (this.states.length) {
       var $state_select = this.$state_select;
       this.states.each(function(state) {
