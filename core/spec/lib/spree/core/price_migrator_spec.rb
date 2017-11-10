@@ -195,7 +195,7 @@ describe Spree::PriceMigrator do
         end
 
         it 'has a constant amount pre tax' do
-          expect(line_item.discounted_amount - line_item.included_tax_total).to eq(18.69)
+          expect(line_item.final_amount_without_additional_tax - line_item.included_tax_total).to eq(18.69)
         end
       end
 
@@ -215,7 +215,7 @@ describe Spree::PriceMigrator do
         end
 
         it 'has a constant amount pre tax' do
-          expect(line_item.discounted_amount - line_item.included_tax_total).to eq(25.21)
+          expect(line_item.final_amount_without_additional_tax - line_item.included_tax_total).to eq(25.21)
         end
       end
 
@@ -235,7 +235,7 @@ describe Spree::PriceMigrator do
         end
 
         it 'has a constant amount pre tax' do
-          expect(line_item.discounted_amount - line_item.included_tax_total).to eq(8.40)
+          expect(line_item.final_amount_without_additional_tax - line_item.included_tax_total).to eq(8.40)
         end
       end
     end
@@ -269,14 +269,15 @@ describe Spree::PriceMigrator do
         end
 
         it 'has a constant amount pre tax' do
-          expect(line_item.discounted_amount - line_item.included_tax_total).to eq(18.69)
+          expect(line_item.final_amount_without_additional_tax - line_item.included_tax_total).to eq(18.69)
         end
       end
     end
 
     # International delivery, no tax applies whatsoever
     context 'to anywhere else in the world' do
-      let(:shipping_address) { create :address, country: world_zone.countries.first }
+      let(:shipping_address) { create :address, country: country, state: country.states.first }
+      let(:country) { world_zone.countries.first }
 
       context 'an order with a book' do
         let(:variant) { book }
@@ -302,7 +303,7 @@ describe Spree::PriceMigrator do
         end
 
         it 'has a constant amount pre tax' do
-          expect(line_item.discounted_amount - line_item.included_tax_total).to eq(18.69)
+          expect(line_item.final_amount_without_additional_tax - line_item.included_tax_total).to eq(18.69)
         end
       end
 
@@ -326,7 +327,7 @@ describe Spree::PriceMigrator do
         end
 
         it 'has a constant amount pre tax' do
-          expect(line_item.discounted_amount - line_item.included_tax_total).to eq(25.21)
+          expect(line_item.final_amount_without_additional_tax - line_item.included_tax_total).to eq(25.21)
         end
       end
 
@@ -350,7 +351,7 @@ describe Spree::PriceMigrator do
         end
 
         it 'has a constant amount pre tax' do
-          expect(line_item.discounted_amount - line_item.included_tax_total).to eq(8.40)
+          expect(line_item.final_amount_without_additional_tax - line_item.included_tax_total).to eq(8.40)
         end
       end
     end
