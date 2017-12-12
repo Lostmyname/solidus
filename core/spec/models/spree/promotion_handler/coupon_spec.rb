@@ -5,7 +5,7 @@ module Spree
     describe Coupon, type: :model do
       let(:order) { double("Order", coupon_code: "10off").as_null_object }
 
-      subject { Coupon.new(order) }
+      subject(:coupon) { Coupon.new(order) }
 
       def expect_order_connection(order:, promotion:, promotion_code:nil)
         expect(order.promotions.to_a).to include(promotion)
@@ -255,7 +255,7 @@ module Spree
           let(:order) { create(:order, store: store) }
           let(:tax_category) { create(:tax_category, name: "Taxable Foo") }
           let(:zone) { create(:zone, :with_country) }
-          let!(:tax_rate) { create(:tax_rate, amount: 0.1, tax_category: tax_category, zone: zone )}
+          let!(:tax_rate) { create(:tax_rate, amount: 0.1, tax_categories: [tax_category], zone: zone ) }
 
           before(:each) do
             expect(order).to receive(:tax_address).at_least(:once).and_return(Spree::Tax::TaxLocation.new(country: zone.countries.first))
@@ -330,6 +330,17 @@ module Spree
               expect(order.reload.total).to eq(0)
               expect(order.additional_tax_total).to eq(0)
             end
+          end
+        end
+
+        context 'when the promotion is not actionable yet' do
+          let(:order) { create(:order, coupon_code: '10off') }
+
+          it 'successfully activates the promotion' do
+            coupon.apply
+
+            expect(coupon.success).to be_truthy
+            expect_order_connection(order: order, promotion: promotion, promotion_code: promotion_code)
           end
         end
       end

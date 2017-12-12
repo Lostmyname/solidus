@@ -184,7 +184,7 @@ describe Spree::Order, type: :model do
 
       it "recalculates tax and updates totals" do
         zone = create(:zone, countries: [order.tax_address.country])
-        create(:tax_rate, tax_category: line_item.tax_category, amount: 0.05, zone: zone)
+        create(:tax_rate, tax_categories: [line_item.tax_category], amount: 0.05, zone: zone)
         order.next!
         expect(order).to have_attributes(
           adjustment_total: 0.5,
@@ -280,12 +280,12 @@ describe Spree::Order, type: :model do
       before do
         order.ship_address = ship_address
         order.state = 'delivery'
-        allow(order).to receive(:apply_free_shipping_promotions)
+        allow(order).to receive(:apply_shipping_promotions)
         allow(order).to receive(:ensure_available_shipping_rates) { true }
       end
 
       it "attempts to apply free shipping promotions" do
-        expect(order).to receive(:apply_free_shipping_promotions)
+        expect(order).to receive(:apply_shipping_promotions)
         order.next!
       end
 

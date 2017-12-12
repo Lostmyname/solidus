@@ -255,6 +255,10 @@ module Spree
     #   @return [Boolean] Indicates if stock management can be restricted by location
     preference :can_restrict_stock_management, :boolean, default: false
 
+    # @!attribute [rw] set_guest_token
+    #   @return [Boolean] Indicates if guest_token should be set
+    preference :set_guest_token, :boolean, default: true
+
     # searcher_class allows spree extension writers to provide their own Search class
     attr_writer :searcher_class
     def searcher_class
@@ -363,6 +367,26 @@ module Spree
     attr_writer :tax_adjuster_class
     def tax_adjuster_class
       @tax_adjuster_class ||= Spree::Tax::OrderAdjuster
+    end
+
+    attr_writer :promotions_to_remove_from_order_class
+    def promotions_to_remove_from_order_class
+      @promotions_to_remove_from_order_class ||= Spree::Promotion::PromotionsToRemoveFromOrder
+    end
+
+    attr_writer :automatic_promotion_decision_class
+    def automatic_promotion_decision_class
+      @automatic_promotion_decision_class ||= Spree::Promotion::AutomaticPromotionDecision
+    end
+
+    # Allows providing your own class for choosing which store to use.
+    #
+    # @!attribute [rw] current_store_selector_class
+    # @return [Class] a class with the same public interfaces as
+    #   Spree::CurrentStoreSelector
+    attr_writer :current_store_selector_class
+    def current_store_selector_class
+      @current_store_selector_class ||= Spree::CurrentStoreSelector
     end
 
     def static_model_preferences

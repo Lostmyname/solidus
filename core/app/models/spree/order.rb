@@ -193,6 +193,11 @@ module Spree
     def discounted_item_amount
       line_items.to_a.sum(&:discounted_amount)
     end
+    deprecate discounted_item_amount: :final_item_amount_without_additional_tax, deprecator: Spree::Deprecation
+
+    def final_item_amount_without_additional_tax
+      line_items.to_a.sum(&:final_amount_without_additional_tax)
+    end
 
     def currency
       self[:currency] || Spree::Config[:currency]
@@ -531,10 +536,11 @@ module Spree
       end
     end
 
-    def apply_free_shipping_promotions
-      Spree::PromotionHandler::FreeShipping.new(self).activate
+    def apply_shipping_promotions
+      Spree::PromotionHandler::Shipping.new(self).activate
       update!
     end
+    deprecate apply_free_shipping_promotions: :apply_shipping_promotions, deprecator: Spree::Deprecation
 
     # Clean shipments and make order back to address state
     #
@@ -615,7 +621,7 @@ module Spree
 
     def add_store_credit_payments
       return if user.nil?
-      return if payments.store_credits.checkout.empty? && user.total_available_store_credit.zero?
+      return if payments.store_credits.checkout.empty? && user.available_store_credit_total(currency: currency).zero?
 
       payments.store_credits.checkout.each(&:invalidate!)
 
@@ -626,10 +632,12 @@ module Spree
 
       remaining_total = outstanding_balance - authorized_total
 
-      if user.store_credits.any?
+      matching_store_credits = user.store_credits.where(currency: currency)
+
+      if matching_store_credits.any?
         payment_method = Spree::PaymentMethod::StoreCredit.first
 
-        user.store_credits.order_by_priority.each do |credit|
+        matching_store_credits.order_by_priority.each do |credit|
           break if remaining_total.zero?
           next if credit.amount_remaining.zero?
 
@@ -659,13 +667,13 @@ module Spree
 
     def covered_by_store_credit?
       return false unless user
-      user.total_available_store_credit >= total
+      user.available_store_credit_total(currency: currency) >= total
     end
     alias_method :covered_by_store_credit, :covered_by_store_credit?
 
     def total_available_store_credit
       return 0.0 unless user
-      user.total_available_store_credit
+      user.available_store_credit_total(currency: currency)
     end
 
     def order_total_after_store_credit
@@ -676,7 +684,7 @@ module Spree
       if can_complete? || complete?
         payments.store_credits.valid.sum(:amount)
       else
-        [total, (user.try(:total_available_store_credit) || 0.0)].min
+        [total, (user.try(:available_store_credit_total, currency: currency) || 0.0)].min
       end
     end
 

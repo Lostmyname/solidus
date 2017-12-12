@@ -67,9 +67,10 @@ module Spree
         ]
 
         app.config.spree.calculators.promotion_actions_create_item_adjustments = %w[
-          Spree::Calculator::PercentOnLineItem
+          Spree::Calculator::DistributedAmount
           Spree::Calculator::FlatRate
           Spree::Calculator::FlexiRate
+          Spree::Calculator::PercentOnLineItem
           Spree::Calculator::TieredPercent
         ]
 
@@ -100,6 +101,12 @@ module Spree
           Spree::Promotion::Actions::CreateAdjustment
           Spree::Promotion::Actions::CreateItemAdjustments
           Spree::Promotion::Actions::CreateQuantityAdjustments
+          Spree::Promotion::Actions::FreeShipping
+        ]
+      end
+
+      initializer 'spree.promo.register.promotions.shipping_actions', before: :load_config_initializers do |app|
+        app.config.spree.promotions.shipping_actions = %w[
           Spree::Promotion::Actions::FreeShipping
         ]
       end

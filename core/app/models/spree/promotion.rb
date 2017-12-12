@@ -105,16 +105,19 @@ module Spree
       # If an action has been taken, report back to whatever activated this promotion.
       action_taken = results.include?(true)
 
-      if action_taken
-        # connect to the order
-        order.order_promotions.find_or_create_by!(
-          promotion: self,
-          promotion_code: promotion_code,
-        )
-        order.promotions.reset
-        order_promotions.reset
-        orders.reset
-      end
+      # connect to the order
+      order.order_promotions.find_or_create_by!(
+        promotion: self,
+        promotion_code: promotion_code,
+      )
+      Spree::Config.promotions_to_remove_from_order_class.new(order).
+        promotions_to_remove.
+        each do |promotion|
+          promotion.remove_from(order)
+        end
+      order.promotions.reset
+      order_promotions.reset
+      orders.reset
 
       action_taken
     end

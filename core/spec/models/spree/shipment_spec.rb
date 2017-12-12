@@ -130,7 +130,7 @@ describe Spree::Shipment, type: :model do
 
     let!(:ship_address) { create(:address) }
     let!(:tax_zone) { create(:global_zone) } # will include the above address
-    let!(:tax_rate) { create(:tax_rate, amount: 0.1, zone: tax_zone, tax_category: tax_category) }
+    let!(:tax_rate) { create(:tax_rate, amount: 0.1, zone: tax_zone, tax_categories: [tax_category]) }
     let(:tax_category) { create(:tax_category) }
     let(:variant) { create(:variant, tax_category: tax_category) }
 
@@ -143,7 +143,22 @@ describe Spree::Shipment, type: :model do
     shipment = create(:shipment)
     shipment.cost = 10
     shipment.promo_total = -1
-    expect(shipment.discounted_cost).to eq(9)
+    expect(Spree::Deprecation.silence { shipment.discounted_cost }).to eq(9)
+  end
+
+  describe '#final_amount_without_additional_tax' do
+    before do
+      shipment.update_attributes!(cost: 10)
+    end
+    let!(:admin_adjustment) { create(:adjustment, adjustable: shipment, order: shipment.order, amount: -1, source: nil) }
+    let!(:promo_adjustment) { create(:adjustment, adjustable: shipment, order: shipment.order, amount: -2, source: promo_action) }
+    let!(:ineligible_promo_adjustment) { create(:adjustment, eligible: false, adjustable: shipment, order: shipment.order, amount: -4, source: promo_action) }
+    let(:promo_action) { promo.actions[0] }
+    let(:promo) { create(:promotion, :with_line_item_adjustment) }
+
+    it 'returns the amount minus any adjustments' do
+      expect(shipment.final_amount_without_additional_tax).to eq(10 - 1 - 2)
+    end
   end
 
   it "#tax_total with included taxes" do
@@ -548,7 +563,7 @@ describe Spree::Shipment, type: :model do
   context "changes shipping rate via general update" do
     let!(:ship_address) { create(:address) }
     let!(:tax_zone) { create(:global_zone) } # will include the above address
-    let!(:tax_rate) { create(:tax_rate, amount: 0.10, zone: tax_zone, tax_category: tax_category) }
+    let!(:tax_rate) { create(:tax_rate, amount: 0.10, zone: tax_zone, tax_categories: [tax_category]) }
     let(:tax_category) { create(:tax_category) }
 
     let(:order) do
