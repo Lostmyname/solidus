@@ -40,6 +40,7 @@ require 'cancan/matchers'
 ActiveJob::Base.queue_adapter = :test
 
 RSpec.configure do |config|
+  config.disable_monkey_patching!  
   config.color = true
   config.infer_spec_type_from_file_location!
   config.expect_with :rspec do |c|
